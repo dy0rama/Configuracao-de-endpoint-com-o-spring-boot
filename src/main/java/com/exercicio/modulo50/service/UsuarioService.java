@@ -1,6 +1,7 @@
 package com.exercicio.modulo50.service;
 
 import com.exercicio.modulo50.entities.Usuario;
+import com.exercicio.modulo50.exceptions.UsuarioNaoEncontradoException;
 import com.exercicio.modulo50.repository.UsuarioRepository;
 import com.exercicio.modulo50.request.UsuarioRequest;
 import com.exercicio.modulo50.response.UsuarioResponse;
@@ -35,7 +36,7 @@ public class UsuarioService {
     // READ - buscar por ID
     public UsuarioResponse buscarPorId(UUID id) {
         Usuario usuario = usuarioRepository.findById(id).orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+                        new UsuarioNaoEncontradoException(id));
 
         return new UsuarioResponse(usuario.getId(), usuario.getUsuario());
     }
@@ -49,10 +50,10 @@ public class UsuarioService {
     // UPDATE
     public UsuarioResponse atualizar(UUID id, UsuarioRequest request) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
 
         usuario.setUsuario(request.getUsuario());
-        usuario.setSenha(request.getSenha());
+        usuario.setSenha(passwordEncoder.encode(request.getSenha()));
 
         Usuario usuarioAtualizado = usuarioRepository.save(usuario);
 
@@ -62,7 +63,7 @@ public class UsuarioService {
     // DELETE
     public void deletar(UUID id) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(id));
 
         usuarioRepository.delete(usuario);
     }

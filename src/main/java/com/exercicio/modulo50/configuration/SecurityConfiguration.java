@@ -18,9 +18,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    public SecurityConfiguration(CustomUserDetailsService userDetailsService) {
+    public SecurityConfiguration(CustomUserDetailsService userDetailsService, CustomAuthenticationEntryPoint authenticationEntryPoint) {
         this.userDetailsService = userDetailsService;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
@@ -33,7 +35,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/usuarios/registrar").permitAll()
                         .requestMatchers("/api/seguro").authenticated()
                         .anyRequest().permitAll())
-                .httpBasic(httpBasic -> {});
+                .httpBasic(httpBasic ->
+                        httpBasic.authenticationEntryPoint(authenticationEntryPoint));
 
         return http.build();
     }
